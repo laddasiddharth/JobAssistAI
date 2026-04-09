@@ -20,8 +20,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         email: user.email,
       },
     });
-  } catch (error: any) {
-    res.status(400).json({ message: error.message || 'Error registering user' });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Error registering user';
+    res.status(400).json({ message });
   }
 };
 
@@ -44,8 +45,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         email: user.email,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Specifically catching the invalid credentials scenario or other service errors
-    res.status(401).json({ message: error.message || 'Invalid credentials' });
+    const message = error instanceof Error ? error.message : 'Invalid credentials';
+    res.status(401).json({ message });
   }
 };

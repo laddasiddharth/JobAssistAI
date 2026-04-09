@@ -1,14 +1,14 @@
 import express, { Application, Request, Response } from 'express';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import connectDB from './config/db';
+import authRoutes from './routes/auth.routes';
 
 // Load environment variables from .env file
 dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/jobassist';
 
 // Basic middleware setup
 app.use(cors());
@@ -20,16 +20,12 @@ app.get('/', (req: Request, res: Response) => {
   res.send('JobAssist API Server is running');
 });
 
+// Use routes
+app.use('/api/auth', authRoutes);
+
 // Connect to MongoDB and start the server
-mongoose
-  .connect(MONGODB_URI)
-  .then(() => {
-    console.log('Successfully connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error('Error connecting to MongoDB:', error);
-    process.exit(1);
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
   });
+});

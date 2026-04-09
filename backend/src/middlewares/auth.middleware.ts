@@ -1,13 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 // Extend Express Request interface to include the user property
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
+      user?: JwtPayload | string;
     }
   }
 }
@@ -25,8 +23,13 @@ export const authenticateJWT = (req: Request, res: Response, next: NextFunction)
   const token = authHeader.split(' ')[1];
 
   try {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error('JWT_SECRET is not defined in the environment variables');
+    }
+
     // Verify the token
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, secret);
 
     // Attach decoded user to the request object
     req.user = decoded;

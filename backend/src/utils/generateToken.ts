@@ -1,7 +1,5 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
-
 /**
  * Generates a JSON Web Token (JWT) for a given user ID.
  * 
@@ -10,9 +8,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
  * @returns The signed JWT string.
  */
 export const generateToken = (userId: string | object, expiresIn: string | number = '1d'): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in the environment variables');
+  }
+
   const payload = { id: userId };
   
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, secret, {
     expiresIn,
   });
 };

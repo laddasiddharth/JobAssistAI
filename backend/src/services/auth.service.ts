@@ -1,8 +1,6 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import User, { IUser } from '../models/user.model';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
+import generateToken from '../utils/generateToken';
 
 export const registerUser = async (email: string, password: string): Promise<{ user: IUser; token: string }> => {
   // Check if user already exists
@@ -22,9 +20,7 @@ export const registerUser = async (email: string, password: string): Promise<{ u
   });
 
   // Generate a JWT token
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, {
-    expiresIn: '1d',
-  });
+  const token = generateToken(user._id as string);
 
   return { user, token };
 };
@@ -43,9 +39,7 @@ export const loginUser = async (email: string, password: string): Promise<{ user
   }
 
   // Generate a JWT token
-  const token = jwt.sign({ id: user._id }, JWT_SECRET, {
-    expiresIn: '1d',
-  });
+  const token = generateToken(user._id as string);
 
   return { user, token };
 };
