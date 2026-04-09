@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.env
+*.pdf
+Internship_Assignment-1.pdf
