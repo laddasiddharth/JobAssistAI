@@ -19,9 +19,10 @@ const Register: React.FC = () => {
       
       // Redirect to login page on successful registration
       navigate('/login');
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
       setError(
-        err.response?.data?.message || 'Registration failed. Please try again.'
+        axiosError.response?.data?.message || 'Registration failed. Please try again.'
       );
     }
   };

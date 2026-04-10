@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../api/axios';
 import KanbanBoard from '../components/KanbanBoard';
-import { ApplicationData } from '../components/ApplicationCard';
+import { type ApplicationData } from '../components/ApplicationCard';
 import ApplicationDetailModal from '../components/ApplicationDetailModal';
 
 const Dashboard: React.FC = () => {
@@ -24,15 +24,17 @@ const Dashboard: React.FC = () => {
       const response = await apiClient.get('/applications');
       return response.data.applications || [];
     },
-    retry: (failureCount, err: any) => {
+    retry: (failureCount, err: unknown) => {
+      const axiosError = err as { response?: { status?: number } };
       // Don't retry if unauthorized
-      if (err.response?.status === 401 || err.response?.status === 403) return false;
+      if (axiosError.response?.status === 401 || axiosError.response?.status === 403) return false;
       return failureCount < 2;
     }
   });
 
   // Handle unauthorized errors globally for the query
-  if (isError && (error as any)?.response?.status === 401) {
+  const queryErr = error as { response?: { status?: number } } | null;
+  if (isError && queryErr?.response?.status === 401) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     navigate('/login');
@@ -60,7 +62,7 @@ const Dashboard: React.FC = () => {
       // Return context for rollback
       return { previousApps };
     },
-    onError: (err, variables, context) => {
+    onError: (_err, _variables, context) => {
       // Rollback on failure
       if (context?.previousApps) {
         queryClient.setQueryData(['applications'], context.previousApps);

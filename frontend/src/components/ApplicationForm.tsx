@@ -65,8 +65,9 @@ const ApplicationForm: React.FC<ApplicationFormProps> = ({ initialData, onSubmit
           notes: newNotes.trim(),
         };
       });
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to parse job description using AI.');
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      setError(axiosError.response?.data?.message || 'Failed to parse job description using AI.');
     } finally {
       setIsParsing(false);
     }

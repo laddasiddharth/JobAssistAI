@@ -24,8 +24,9 @@ const ResumeSuggestions: React.FC<ResumeSuggestionsProps> = ({ jobDescription })
     try {
       const response = await apiClient.post('/ai/resume', { jobDescription });
       setSuggestions(response.data.suggestions || []);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to generate resume suggestions.');
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
+      setError(axiosError.response?.data?.message || 'Failed to generate resume suggestions.');
     } finally {
       setIsLoading(false);
     }

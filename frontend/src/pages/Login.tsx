@@ -23,9 +23,10 @@ const Login: React.FC = () => {
 
       // Redirect to the dashboard or home page after successful login
       navigate('/');
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } };
       setError(
-        err.response?.data?.message || 'Login failed. Please check your credentials.'
+        axiosError.response?.data?.message || 'Login failed. Please check your credentials.'
       );
     }
   };

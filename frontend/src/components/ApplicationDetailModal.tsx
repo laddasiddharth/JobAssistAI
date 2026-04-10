@@ -1,5 +1,5 @@
 import React from 'react';
-import { ApplicationData } from './ApplicationCard';
+import { type ApplicationData } from './ApplicationCard';
 import ResumeSuggestions from './ResumeSuggestions';
 
 interface ApplicationDetailModalProps {
