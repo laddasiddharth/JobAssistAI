@@ -48,7 +48,7 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
 
 export const update = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = getUserId(req);
     const updatedApplication = await updateAppService(id, req.body, userId);
     
@@ -64,7 +64,7 @@ export const update = async (req: Request, res: Response): Promise<void> => {
 
 export const remove = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const userId = getUserId(req);
     await deleteAppService(id, userId);
     

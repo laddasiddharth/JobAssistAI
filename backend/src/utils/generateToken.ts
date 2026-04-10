@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
  * @param expiresIn - Expiration time for the token (default: '1d').
  * @returns The signed JWT string.
  */
-export const generateToken = (userId: string | object, expiresIn: string | number = '1d'): string => {
+export const generateToken = (userId: string | object, expiresIn: any = '1d'): string => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error('JWT_SECRET is not defined in the environment variables');

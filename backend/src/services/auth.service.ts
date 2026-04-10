@@ -20,7 +20,7 @@ export const registerUser = async (email: string, password: string): Promise<{ u
   });
 
   // Generate a JWT token
-  const token = generateToken(user._id as string);
+  const token = generateToken((user._id as unknown as string).toString());
 
   return { user, token };
 };
@@ -39,7 +39,7 @@ export const loginUser = async (email: string, password: string): Promise<{ user
   }
 
   // Generate a JWT token
-  const token = generateToken(user._id as string);
+  const token = generateToken((user._id as unknown as string).toString());
 
   return { user, token };
 };
