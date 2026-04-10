@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
 /**
  * Generates a JSON Web Token (JWT) for a given user ID.
@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
  * @param expiresIn - Expiration time for the token (default: '1d').
  * @returns The signed JWT string.
  */
-export const generateToken = (userId: string | object, expiresIn: any = '1d'): string => {
+export const generateToken = (userId: string | object, expiresIn: string | number = '1d'): string => {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error('JWT_SECRET is not defined in the environment variables');
@@ -16,7 +16,7 @@ export const generateToken = (userId: string | object, expiresIn: any = '1d'): s
   const payload = { id: userId };
   
   return jwt.sign(payload, secret, {
-    expiresIn,
+    expiresIn: expiresIn as SignOptions['expiresIn'],
   });
 };
 
