@@ -5,11 +5,13 @@ import apiClient from '../api/axios';
 import KanbanBoard from '../components/KanbanBoard';
 import { type ApplicationData } from '../components/ApplicationCard';
 import ApplicationDetailModal from '../components/ApplicationDetailModal';
+import ApplicationForm, { type ApplicationFormData } from '../components/ApplicationForm';
 
 const Dashboard: React.FC = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // 1. Define React Query for fetching applications
   const { data: applications = [], isLoading, isError, error } = useQuery({
@@ -74,6 +76,23 @@ const Dashboard: React.FC = () => {
     },
   });
 
+  // 3. React Query Mutation for adding a new application
+  const { mutate: addApplication } = useMutation({
+    mutationFn: async (newApp: Omit<ApplicationData, '_id' | 'createdAt' | 'updatedAt' | 'user'>) => {
+      const response = await apiClient.post('/applications', newApp);
+      return response.data.application;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['applications'] });
+      setIsAddModalOpen(false);
+    }
+  });
+
+  const handleAddSubmit = (formData: ApplicationFormData) => {
+    addApplication(formData as Omit<ApplicationData, '_id' | 'createdAt' | 'updatedAt' | 'user'>);
+  };
+
+
   const handleStatusChange = (id: string, newStatus: string) => {
     updateStatus({ id, newStatus });
   };
@@ -94,7 +113,7 @@ const Dashboard: React.FC = () => {
       <div className="flex items-center justify-between mx-auto mb-8 max-w-7xl">
         <h1 className="text-3xl font-bold text-gray-800">My Job Applications</h1>
         <button 
-          onClick={() => alert("Add Application form coming next!")}
+          onClick={() => setIsAddModalOpen(true)}
           className="px-4 py-2 font-semibold text-white transition-colors bg-blue-600 rounded hover:bg-blue-700 shadow-sm"
         >
           + Add Application
@@ -138,6 +157,18 @@ const Dashboard: React.FC = () => {
           application={selectedApplication}
           onClose={closeModal}
         />
+      )}
+
+      {/* Add Content Form Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto relative">
+             <ApplicationForm 
+               onSubmit={handleAddSubmit} 
+               onCancel={() => setIsAddModalOpen(false)} 
+             />
+          </div>
+        </div>
       )}
     </div>
   );

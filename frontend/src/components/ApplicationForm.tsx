@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import apiClient from '../api/axios';
 
-interface ApplicationFormData {
+export interface ApplicationFormData {
   company: string;
   role: string;
   status: string;
