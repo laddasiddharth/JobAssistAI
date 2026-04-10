@@ -1,9 +1,10 @@
 import Application, { IApplication } from '../models/application.model';
+import mongoose from 'mongoose';
 
 export const createApplication = async (data: Partial<IApplication>, userId: string): Promise<IApplication> => {
   const application = await Application.create({
     ...data,
-    user: userId,
+    user: new mongoose.Types.ObjectId(userId),
   });
 
   return application;
