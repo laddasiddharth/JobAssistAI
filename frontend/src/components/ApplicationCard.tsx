@@ -6,6 +6,10 @@ export interface ApplicationData {
   role: string;
   dateApplied: string | Date;
   status: string;
+  jobDescription?: string;
+  jdLink?: string;
+  notes?: string;
+  salaryRange?: string;
 }
 
 interface ApplicationCardProps {
