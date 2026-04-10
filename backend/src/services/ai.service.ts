@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface ParsedJobDescription {
   company: string;
@@ -9,49 +9,47 @@ interface ParsedJobDescription {
   location: string;
 }
 
-const getOpenAIClient = (): OpenAI => {
-  const apiKey = process.env.OPENAI_API_KEY;
+const getGeminiClient = () => {
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not defined in the environment variables');
+    throw new Error('GEMINI_API_KEY is not defined in the environment variables');
   }
-  return new OpenAI({ apiKey });
+  return new GoogleGenerativeAI(apiKey);
 };
 
 export const parseJobDescription = async (text: string): Promise<ParsedJobDescription> => {
   try {
-    const openai = getOpenAIClient();
+    const genAI = getGeminiClient();
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-    const prompt = `
-      You are an expert technical recruiter and job description analyzer.
-      Given the following job description text, extract the key information and return it strictly as a JSON object.
-      
-      Extract these fields:
-      - company: The name of the company (or "Unknown" if not found)
-      - role: The job title
-      - requiredSkills: An array of strings representing mandatory skills/technologies
-      - niceToHaveSkills: An array of strings representing optional or bonus skills/technologies
-      - seniority: The seniority level (e.g., Junior, Mid, Senior, Lead, "Unknown")
-      - location: The job location or "Remote" (or "Unknown" if not found)
+    const prompt = `You are an expert technical recruiter and job description analyzer.
+Given the following job description text, extract the key information and return it ONLY as a valid JSON object with no other text.
 
-      Job Description:
-      """
-      ${text}
-      """
-      
-      Respond ONLY with valid JSON matching the format requested.
-    `;
+Extract these fields:
+- company: The name of the company (or "Unknown" if not found)
+- role: The job title
+- requiredSkills: An array of strings representing mandatory skills/technologies
+- niceToHaveSkills: An array of strings representing optional or bonus skills/technologies
+- seniority: The seniority level (e.g., Junior, Mid, Senior, Lead, "Unknown")
+- location: The job location or "Remote" (or "Unknown" if not found)
 
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o', // or another appropriate model like 'gpt-4-turbo' or 'gpt-3.5-turbo'
-      messages: [{ role: 'user', content: prompt }],
-      response_format: { type: 'json_object' },
-    });
+Job Description:
+"""
+${text}
+"""
 
-    const content = response.choices[0].message.content;
+Return ONLY valid JSON, no markdown, no code blocks, no explanations.`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    let content = response.text();
 
     if (!content) {
-      throw new Error('No content returned from OpenAI API');
+      throw new Error('No content returned from Gemini API');
     }
+
+    // Clean up JSON if it's wrapped in markdown code blocks
+    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
     const parsedData: ParsedJobDescription = JSON.parse(content);
     return parsedData;
