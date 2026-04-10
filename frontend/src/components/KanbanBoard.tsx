@@ -14,18 +14,43 @@ interface KanbanBoardProps {
 const KanbanColumn: React.FC<{ id: string; title: string; applications: ApplicationData[]; onApplicationClick: (id: string) => void }> = ({ id, title, applications, onApplicationClick }) => {
   const { setNodeRef, isOver } = useDroppable({ id });
 
+  const getColumnColor = (status: string) => {
+    switch (status) {
+      case 'Applied': return { bg: 'bg-sky-50', border: 'border-sky-200/50', text: 'text-sky-700', ring: 'ring-sky-400/50' };
+      case 'Phone Screen': return { bg: 'bg-amber-50', border: 'border-amber-200/50', text: 'text-amber-700', ring: 'ring-amber-400/50' };
+      case 'Interview': return { bg: 'bg-indigo-50', border: 'border-indigo-200/50', text: 'text-indigo-700', ring: 'ring-indigo-400/50' };
+      case 'Offer': return { bg: 'bg-emerald-50', border: 'border-emerald-200/50', text: 'text-emerald-700', ring: 'ring-emerald-400/50' };
+      case 'Rejected': return { bg: 'bg-rose-50', border: 'border-rose-200/50', text: 'text-rose-700', ring: 'ring-rose-400/50' };
+      default: return { bg: 'bg-slate-50', border: 'border-slate-200/50', text: 'text-slate-700', ring: 'ring-slate-400/50' };
+    }
+  };
+  const colors = getColumnColor(title);
+
   return (
     <div
       ref={setNodeRef}
-      className={`flex flex-col min-w-[250px] max-w-[300px] flex-1 bg-gray-50 rounded-lg p-4 ${isOver ? 'ring-2 ring-blue-400 bg-blue-50' : ''}`}
+      className={`flex flex-col min-w-[280px] flex-1 bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-sm rounded-2xl border-2 ${colors.border} p-5 transition-all duration-300 ${
+        isOver ? `ring-2 ${colors.ring} shadow-lg shadow-${title === 'Applied' ? 'sky' : title === 'Phone Screen' ? 'amber' : title === 'Interview' ? 'indigo' : title === 'Offer' ? 'emerald' : 'rose'}-500/20` : 'shadow-sm'
+      }`}
     >
-      <h2 className="mb-4 font-bold text-gray-700">
-        {title} <span className="ml-2 text-sm font-normal text-gray-500">({applications.length})</span>
+      <h2 className={`mb-4 font-bold text-base ${colors.text} flex items-center justify-between`}>
+        <span className="flex items-center gap-2">
+          {title}
+          <span className={`inline-flex items-center justify-center w-6 h-6 text-xs font-semibold rounded-full ${colors.bg} ${colors.text}`}>
+            {applications.length}
+          </span>
+        </span>
       </h2>
-      <div className="flex-1 space-y-3 overflow-y-auto">
-        {applications.map((app) => (
-          <DraggableCard key={app._id} application={app} onClick={onApplicationClick} />
-        ))}
+      <div className="flex-1 space-y-3 overflow-y-auto pr-1">
+        {applications.length === 0 ? (
+          <div className={`text-center py-8 text-sm ${colors.text} opacity-50`}>
+            <p className="font-medium">No applications yet</p>
+          </div>
+        ) : (
+          applications.map((app) => (
+            <DraggableCard key={app._id} application={app} onClick={onApplicationClick} />
+          ))
+        )}
       </div>
     </div>
   );
