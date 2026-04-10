@@ -5,6 +5,7 @@ export interface IApplication extends Document {
   company: string;
   role: string;
   jobDescription?: string;
+  jdLink?: string;
   notes?: string;
   dateApplied: Date;
   status: 'Applied' | 'Phone Screen' | 'Interview' | 'Offer' | 'Rejected';
@@ -28,6 +29,10 @@ const ApplicationSchema: Schema = new Schema(
     },
     jobDescription: {
       type: String,
+    },
+    jdLink: {
+      type: String,
+      trim: true,
     },
     notes: {
       type: String,

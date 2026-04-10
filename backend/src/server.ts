@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './config/db';
 import authRoutes from './routes/auth.routes';
+import applicationRoutes from './routes/application.routes';
+import aiRoutes from './routes/ai.routes';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -22,6 +24,8 @@ app.get('/', (req: Request, res: Response) => {
 
 // Use routes
 app.use('/api/auth', authRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Connect to MongoDB and start the server
 connectDB().then(() => {
