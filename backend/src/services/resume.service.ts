@@ -8,6 +8,17 @@ const getGeminiClient = () => {
   return new GoogleGenerativeAI(apiKey);
 };
 
+const getGeminiModelName = () => (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim();
+
+let didLogGeminiConfig = false;
+const logGeminiConfigOnce = (apiKey: string) => {
+  if (didLogGeminiConfig) return;
+  didLogGeminiConfig = true;
+  console.info(
+    `[Gemini] model=${getGeminiModelName()} keyLength=${apiKey.length}`
+  );
+};
+
 /**
  * Generates targeted resume suggestions based on a job description.
  * 
@@ -16,8 +27,10 @@ const getGeminiClient = () => {
  */
 export const generateResumeSuggestions = async (jobDescription: string): Promise<string[]> => {
   try {
+    const apiKey = process.env.GEMINI_API_KEY || '';
+    logGeminiConfigOnce(apiKey);
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: getGeminiModelName() });
 
     const prompt = `You are an expert career coach and resume writer.
 Analyze the following job description and provide 3 to 5 targeted, role-specific resume bullet points that a candidate should highlight or adapt in their resume to stand out for this position.

@@ -18,6 +18,7 @@ export const parseJobDescription = async (req: Request, res: Response): Promise<
       data: parsedData,
     });
   } catch (error: unknown) {
+    console.error('[AI Controller Error - Parse]', error);
     const message = error instanceof Error ? error.message : 'Error parsing job description';
     res.status(500).json({ message });
   }
@@ -39,6 +40,7 @@ export const generateResumeSuggestions = async (req: Request, res: Response): Pr
       suggestions,
     });
   } catch (error: unknown) {
+    console.error('[AI Controller Error - Resume]', error);
     const message = error instanceof Error ? error.message : 'Error generating resume suggestions';
     res.status(500).json({ message });
   }

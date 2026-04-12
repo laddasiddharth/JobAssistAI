@@ -17,10 +17,23 @@ const getGeminiClient = () => {
   return new GoogleGenerativeAI(apiKey);
 };
 
+const getGeminiModelName = () => (process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim();
+
+let didLogGeminiConfig = false;
+const logGeminiConfigOnce = (apiKey: string) => {
+  if (didLogGeminiConfig) return;
+  didLogGeminiConfig = true;
+  console.info(
+    `[Gemini] model=${getGeminiModelName()} keyLength=${apiKey.length}`
+  );
+};
+
 export const parseJobDescription = async (text: string): Promise<ParsedJobDescription> => {
   try {
+    const apiKey = process.env.GEMINI_API_KEY || '';
+    logGeminiConfigOnce(apiKey);
     const genAI = getGeminiClient();
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: getGeminiModelName() });
 
     const prompt = `You are an expert technical recruiter and job description analyzer.
 Given the following job description text, extract the key information and return it ONLY as a valid JSON object with no other text.
